@@ -19,10 +19,10 @@ print ("Enter your password:")
 password = input()
 
 def main():
+    first_suc = True
     default = -1
     while True:
         try:
-            print("[+] Checking login status...")
             if "default.aspx" not in driver.current_url and "Resultat2021.aspx" not in driver.current_url:
                 driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
                 print("[=] Redirected to login page...")
@@ -44,9 +44,11 @@ def main():
             # Go back to the result page
             driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
 
-            time.sleep(2)
+            if first_suc == False:
+                time.sleep(60)
             # Check if still logged in
             if "default.aspx" not in driver.current_url:
+                first_suc = False
                 print("\033c")
                 # Find the table and count the rows
                 table = driver.find_element(By.XPATH,"//table")
@@ -59,8 +61,12 @@ def main():
                     default = len(rows)-1
                 print("Last update:", datetime.datetime.now().strftime("%H:%M:%S"))
         except Exception as e:
-            print("Error:", e)
-            break
+            if str(e) == "KeyboardInterrupt":
+                print("[-] Exiting...")
+                break
+            else:
+                print("Error:", e)
+                pass
     quit()
 
 main()

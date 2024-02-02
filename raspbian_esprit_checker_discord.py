@@ -13,20 +13,10 @@ display.start()
 
 secret = "" # Your discord bot token
 room_id = "" # The room id where you want to send the message
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print('Logged on as', self.user)
 
-    async def on_message(self, message):
-        # don't respond to ourselves
-        if message.author == self.user:
-            return
-
-        if message.content == 'ping':
-            await message.channel.send('pong')
 intents = discord.Intents.default()
 intents.message_content = True
-client = MyClient(intents=intents)
+client = discord.Client(intents=discord.Intents.all())
 
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
@@ -42,15 +32,16 @@ password = input()
 
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    print('Logged in as {0.user}'.format(client))
     await main()
 
 async def main():
+    first_suc = True
     default = -1
-    channel = client.get_channel(789227592384380991)
+    await client.wait_until_ready()
+    channel = client.get_channel(int(room_id))
     while True:
         try:
-            print("[+] Checking login status...")
             if "default.aspx" not in driver.current_url and "Resultat2021.aspx" not in driver.current_url:
                 driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
                 print("[=] Redirected to login page...")
@@ -71,27 +62,45 @@ async def main():
             # Go back to the result page
             driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
 
-            await asyncio.sleep(60)
-            # Check if still logged in
+            if first_suc == False:
+                await asyncio.sleep(60)
+                
             if "default.aspx" not in driver.current_url:
+                
                 print("\033c")
                 # Find the table and count the rows
                 table = driver.find_element(By.XPATH,"//table")
                 rows = table.find_elements(By.XPATH,".//tr")
+                
+                if first_suc == True:
+                    await channel.send('This is an initialization embed:')
+                    embed = discord.Embed(title="Returned Modules for " + username, description="", color=0x00ff00)
+                    for i in range(1,len(rows)):
+                        cells = rows[i].find_elements(By.XPATH, ".//td")
+                        embed.add_field(name="Module " + str(i), value=cells[0].text, inline=False)
+                    await channel.send(embed=embed)
+                first_suc = False
                 print("[!] Returned Marks:", len(rows)-1)
                 await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(rows)-1) + " marks | Last: " + datetime.datetime.now().strftime("%H:%M:%S")))
                 if default == -1:
                     default = len(rows)-1
                 elif default != len(rows)-1:
                     print("[+] Marks updated!")
-                    await client.wait_until_ready()
-                    channel = client.get_channel(789227592384380991)
-                    await channel.send('@everyone A new mark has been added! ')
+                    await channel.send('@everyone A new mark has been added!')
+                    embed = discord.Embed(title="Returned Modules for " + username, description="", color=0x00ff00)
+                    for i in range(1,len(rows)):
+                        cells = rows[i].find_elements(By.XPATH, ".//td")
+                        embed.add_field(name="Module " + str(i), value=cells[0].text, inline=False)
+                    await channel.send(embed=embed)
                     default = len(rows)-1
                 print("Last update:", datetime.datetime.now().strftime("%H:%M:%S"))
         except Exception as e:
-            print("Error:", e)
-            break
+            if str(e) == "KeyboardInterrupt":
+                print("[-] Exiting...")
+                break
+            else:
+                print("Error:", e)
+                pass
     driver.quit()
     client.close()
     quit()
