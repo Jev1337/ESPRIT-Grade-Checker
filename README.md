@@ -25,9 +25,9 @@ This project provides a script to check your grades on the ESPRIT student portal
     pip install selenium discord pyvirtualdisplay
     ```
 
-3. Download the appropriate web driver for your platform and place it in the project directory:
-    - For Windows: [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads)
-    - For Linux: [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) and [Xvfb](https://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml)
+3. Download the appropriate web driver for your platform and place it in the project directory (on Raspbian, it's better to use the already existing chromedriver):
+    - For Windows: [ChromeDriver]([https://sites.google.com/a/chromium.org/chromedriver/downloads](https://googlechromelabs.github.io/chrome-for-testing/))
+    - For Linux: [ChromeDriver]([https://sites.google.com/a/chromium.org/chromedriver/downloads](https://googlechromelabs.github.io/chrome-for-testing/)) and [Xvfb](https://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml)
 
 ## Usage
 
