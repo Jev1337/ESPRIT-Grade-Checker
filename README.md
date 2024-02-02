@@ -2,6 +2,8 @@
 
 This project provides a script to check your grades on the ESPRIT student portal. It uses Selenium to automate the login process and scrape the grade information from the result page.
 
+<img src="img.png"></img>
+
 ## Prerequisites
 
 - Python 3.x
