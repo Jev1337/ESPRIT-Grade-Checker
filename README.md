@@ -14,7 +14,7 @@ This project provides a script to check your grades on the ESPRIT student portal
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/ESPRIT-Grade-Checker.git
+    git clone https://github.com/Jev1337/ESPRIT-Grade-Checker.git
     ```
 
 2. Install the required dependencies:
