@@ -1,6 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 import asyncio
 import discord
@@ -41,20 +42,18 @@ async def main():
                 driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
                 print("[=] Redirected to login page...")
 
-            # Check if redirected to login page
             if "default.aspx" in driver.current_url:
                 print("[+] Logging in...")
-                # Enter login credentials
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'ContentPlaceHolder1_TextBox3')))
                 driver.find_element(By.ID, "ContentPlaceHolder1_TextBox3").send_keys(username)
                 driver.find_element(By.ID, "ContentPlaceHolder1_Button3").click()
-                await asyncio.sleep(3)
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'ContentPlaceHolder1_TextBox7')))
                 driver.find_element(By.ID, "ContentPlaceHolder1_TextBox7").send_keys(password)
                 driver.find_element(By.ID, "ContentPlaceHolder1_ButtonEtudiant").click()
                 if "default.aspx" in driver.current_url:
                     print("[!] Wrong credentials / Error logging in...")
                     pass
 
-            # Go back to the result page
             driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
 
             if first_suc == False:
@@ -63,7 +62,6 @@ async def main():
             if "default.aspx" not in driver.current_url:
                 
                 print("\033c")
-                # Find the table and count the rows
                 table = driver.find_element(By.XPATH,"//table")
                 rows = table.find_elements(By.XPATH,".//tr")
                 
@@ -89,16 +87,18 @@ async def main():
                     await channel.send(embed=embed)
                     default = len(rows)-1
                 print("Last update:", datetime.datetime.now().strftime("%H:%M:%S"))
+        except KeyboardInterrupt:
+            print("[-] Exiting...")
+            driver.quit()
+            client.close()
+            exit(0)
+        except TimeoutException:
+            print("[!] Timeout...")
+            driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
+            pass
         except Exception as e:
-            if str(e) == "KeyboardInterrupt":
-                print("[-] Exiting...")
-                break
-            else:
-                print("Error:", e)
-                pass
-    driver.quit()
-    client.close()
-    quit()
-
+            print("[!] Unknown Error occured")
+            driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
+            pass
 
 client.run(secret)

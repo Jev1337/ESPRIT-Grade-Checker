@@ -1,6 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 import datetime
 import time
@@ -30,11 +31,10 @@ def main():
             # Check if redirected to login page
             if "default.aspx" in driver.current_url:
                 print("[+] Logging in...")
-                # Enter login credentials
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'ContentPlaceHolder1_TextBox3')))
                 driver.find_element(By.ID, "ContentPlaceHolder1_TextBox3").send_keys(username)
                 driver.find_element(By.ID, "ContentPlaceHolder1_Button3").click()
-                #sleep
-                time.sleep(3)
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'ContentPlaceHolder1_TextBox7')))
                 driver.find_element(By.ID, "ContentPlaceHolder1_TextBox7").send_keys(password)
                 driver.find_element(By.ID, "ContentPlaceHolder1_ButtonEtudiant").click()
                 if "default.aspx" in driver.current_url:
@@ -46,11 +46,10 @@ def main():
 
             if first_suc == False:
                 time.sleep(60)
-            # Check if still logged in
+
             if "default.aspx" not in driver.current_url:
                 first_suc = False
                 print("\033c")
-                # Find the table and count the rows
                 table = driver.find_element(By.XPATH,"//table")
                 rows = table.find_elements(By.XPATH,".//tr")
                 print("[!] Returned Marks:", len(rows)-1)
@@ -60,13 +59,18 @@ def main():
                     print("[+] Marks updated!")
                     default = len(rows)-1
                 print("Last update:", datetime.datetime.now().strftime("%H:%M:%S"))
+                for row in rows:
+                    print(row.text)
+        except KeyboardInterrupt:
+            print("[-] Exiting...")
+            driver.quit()
+            exit(0)
+        except TimeoutException:
+            print("[!] Timeout...")
+            driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
+            pass
         except Exception as e:
-            if str(e) == "KeyboardInterrupt":
-                print("[-] Exiting...")
-                break
-            else:
-                print("Error:", e)
-                pass
-    quit()
-
+            print("[!] Unknown Error occured")
+            driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
+            pass
 main()
