@@ -83,11 +83,13 @@ async def main():
                     default = len(rows)-1
                 elif default != len(rows)-1:
                     print("[+] Marks updated!")
-                    await channel.send('@everyone A new mark has been added!')
+                    await channel.send('@everyone Grades changed')
                     embed = discord.Embed(title="Returned Modules for " + username, description="", color=0x00ff00)
                     for i in range(1,len(rows)):
                         cells = rows[i].find_elements(By.XPATH, ".//td")
                         embed.add_field(name="Module " + str(i), value=cells[0].text, inline=False)
+                    if len(rows) == 1:
+                        embed.add_field(name="Error: ", value="No modules returned", inline=False)
                     await channel.send(embed=embed)
                     default = len(rows)-1
                 print("Last update:", datetime.datetime.now().strftime("%H:%M:%S"))
@@ -98,10 +100,12 @@ async def main():
             exit(0)
         except TimeoutException:
             print("[!] Timeout...")
+            await asyncio.sleep(5)
             driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
             pass
         except Exception as e:
             print("[!] Unknown Error occured")
+            await asyncio.sleep(5)
             driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
             pass
 
