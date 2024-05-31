@@ -22,9 +22,11 @@ client = discord.Client(intents=discord.Intents.all())
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
 options.add_argument('log-level=3')
+options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3')
 browser_driver = webdriver.ChromeService('/usr/lib/chromium-browser/chromedriver')
 driver = webdriver.Chrome(options = options, service = browser_driver)
 
+has_run_main = False
 
 print ("Enter your username:")
 username = input()
@@ -33,10 +35,19 @@ password = input()
 
 @client.event
 async def on_ready():
-    print('Logged in as {0.user}'.format(client))
+    print('[+] Logged in as {0.user}'.format(client))
+    await main()
+
+@client.event
+async def on_resumed():
+    print('[+] Resumed connection to Discord')
     await main()
 
 async def main():
+    global has_run_main
+    if has_run_main:
+        return
+    has_run_main = True
     first_suc = True
     default = -1
     await client.wait_until_ready()
@@ -68,13 +79,17 @@ async def main():
                 print("\033c")
                 table = driver.find_element(By.XPATH,"//table")
                 rows = table.find_elements(By.XPATH,".//tr")
-                
+                message = ""
                 if first_suc == True:
-                    await channel.send('This is an initialization embed:')
-                    embed = discord.Embed(title="Returned Modules for " + username, description="", color=0x00ff00)
+                    embed = discord.Embed(title="Returned Modules for " + username, description="Initialization Embed (No Changes)", color=0x237feb, url="https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx", timestamp=datetime.datetime.now())
+                    embed.set_author(name="ESPRIT-Grade-Checker", icon_url="https://avatars.githubusercontent.com/u/19759761?v=4")
+                    embed.set_footer(text="By Jev1337")
+                    embed.set_thumbnail(url="https://i.imgur.com/lKDeVmh.png")
                     for i in range(1,len(rows)):
                         cells = rows[i].find_elements(By.XPATH, ".//td")
-                        embed.add_field(name="Module " + str(i), value=cells[0].text, inline=False)
+                        embed.add_field(name="Module " + str(i), value=cells[0].text, inline=True)
+                    if len(rows) == 1:
+                        embed.add_field(name="Error", value="No modules returned")
                     await channel.send(embed=embed)
                 first_suc = False
                 print("[!] Returned Marks:", len(rows)-1)
@@ -83,17 +98,20 @@ async def main():
                     default = len(rows)-1
                 elif default != len(rows)-1:
                     print("[+] Marks updated!")
-                    await channel.send('@everyone Grades changed')
-                    embed = discord.Embed(title="Returned Modules for " + username, description="", color=0x00ff00)
+                    embed = discord.Embed(title="Returned Modules for " + username, description="@everyone Grades have been updated!", color=0x237feb, url="https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx", timestamp=datetime.datetime.now())
+                    embed.set_author(name="ESPRIT-Grade-Checker", icon_url="https://avatars.githubusercontent.com/u/19759761?v=4")
+                    embed.set_footer(text="By Jev1337")
+                    embed.set_thumbnail(url="https://i.imgur.com/lKDeVmh.png")
                     for i in range(1,len(rows)):
                         cells = rows[i].find_elements(By.XPATH, ".//td")
-                        embed.add_field(name="Module " + str(i), value=cells[0].text, inline=False)
+                        embed.add_field(name="Module " + str(i), value=cells[0].text, inline=True)
                     if len(rows) == 1:
-                        embed.add_field(name="Error: ", value="No modules returned", inline=False)
+                        embed.add_field(name="Error", value="No modules returned")
                     await channel.send(embed=embed)
                     default = len(rows)-1
                 print("Last update:", datetime.datetime.now().strftime("%H:%M:%S"))
         except KeyboardInterrupt:
+            has_run_main = False
             print("[-] Exiting...")
             driver.quit()
             client.close()
@@ -104,9 +122,11 @@ async def main():
             driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
             pass
         except Exception as e:
-            print("[!] Unknown Error occured")
-            await asyncio.sleep(5)
-            driver.get("https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx")
-            pass
+            print("[!] Unknown Error occured\n")
+            with open("error.log", "a") as f:
+                f.write("[" + datetime.datetime.now().strftime("%H:%M:%S") + "] " + str(e) + "\n")
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Error Occured at " + datetime.datetime.now().strftime("%H:%M:%S")))
+            has_run_main = False
+            break
 
-client.run(secret)
+client.run(secret, log_handler=None)
