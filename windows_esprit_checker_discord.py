@@ -77,7 +77,7 @@ async def main():
                 message = ""
                 if first_suc == True:
                     embed = discord.Embed(title="Returned Modules for " + username, description="Initialization Embed (No Changes)", color=0x237feb, url="https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx", timestamp=datetime.datetime.now())
-                    embed.set_author(name="ESPRIT-Grade-Checker", icon_url="https://avatars.githubusercontent.com/u/19759761?v=4")
+                    embed.set_author(name="ESPRIT-Grade-Checker", url="https://github.com/Jev1337", icon_url="https://avatars.githubusercontent.com/u/19759761?v=4")
                     embed.set_footer(text="By Jev1337")
                     embed.set_thumbnail(url="https://i.imgur.com/lKDeVmh.png")
                     for i in range(1,len(rows)):
@@ -94,7 +94,7 @@ async def main():
                 elif default != len(rows)-1:
                     print("[+] Marks updated!")
                     embed = discord.Embed(title="Returned Modules for " + username, description="@everyone Grades have been updated!", color=0x237feb, url="https://esprit-tn.com/ESPOnline/Etudiants/Resultat2021.aspx", timestamp=datetime.datetime.now())
-                    embed.set_author(name="ESPRIT-Grade-Checker", icon_url="https://avatars.githubusercontent.com/u/19759761?v=4")
+                    embed.set_author(name="ESPRIT-Grade-Checker", url="https://github.com/Jev1337", icon_url="https://avatars.githubusercontent.com/u/19759761?v=4")
                     embed.set_footer(text="By Jev1337")
                     embed.set_thumbnail(url="https://i.imgur.com/lKDeVmh.png")
                     for i in range(1,len(rows)):
