@@ -1,5 +1,7 @@
 # ESPRIT Grade Checker
 
+# THIS IS ARCHIVED AND NO LONGER MAINTAINED, PLEASE CHECK THE NEW API THAT CAN BE USED TO ACHIEVE THE SAME https://github.com/Jev1337/ESPRIT-TN-API
+
 This project provides a script to check your grades on the ESPRIT student portal. It uses Selenium to automate the login process and scrape the grade information from the result page.
 
 <img alt="Discord Embed Preview" src="img.png"></img>
